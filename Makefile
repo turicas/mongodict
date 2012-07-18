@@ -7,7 +7,7 @@ test-x:
 	nosetests -dvsx --with-coverage --cover-package mongodict --with-yanc
 
 clean:
-	rm -rf MANIFEST build/ dist/ *.egg-info/ reg-settings.py* README.html
+	rm -rf MANIFEST build/ dist/ *.egg-info/ reg_settings.py* README.html .coverage
 	find -regex '.*\.pyc' -exec rm {} \;
 	find -regex '.*~' -exec rm {} \;
 
