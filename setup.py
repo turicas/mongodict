@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 setup(name='mongodict',
-      version='0.1.0',
+      version='0.1.1',
       author=u'Álvaro Justen',
       author_email='alvarojusten@gmail.com',
       url='https://github.com/turicas/mongodict/',
