@@ -6,9 +6,9 @@ import pymongo
 
 class MongoDict(MutableMapping):
     def __init__(self, host='localhost', port=27017, database='mongodict',
-                 collection='main', default=None):
+                 collection='main', default=None, safe=True):
         super(MongoDict, self).__init__()
-        self._connection = pymongo.Connection(host=host, port=port, safe=True)
+        self._connection = pymongo.Connection(host=host, port=port, safe=safe)
         self._db = self._connection[database]
         self._collection = self._db[collection]
         if default is not None:
