@@ -4,6 +4,8 @@ from collections import MutableMapping
 import pymongo
 
 
+__version__ = (0, 1, 1)
+
 class MongoDict(MutableMapping):
     def __init__(self, host='localhost', port=27017, database='mongodict',
                  collection='main', default=None, safe=True):
