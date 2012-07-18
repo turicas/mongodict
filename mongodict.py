@@ -11,22 +11,34 @@ class MongoDict(MutableMapping):
         self._connection = pymongo.Connection(host=host, port=port, safe=safe)
         self._db = self._connection[database]
         self._collection = self._db[collection]
+        self._collection.ensure_index([('_id', 1), ('value', 1)])
         if default is not None:
             self.update(default)
 
     def __setitem__(self, key, value):
-        return self._collection.insert({'_id': key, 'value': value})
+        if isinstance(key, str):
+            key = key.decode('utf-8')
+        if isinstance(value, str):
+            value = value.decode('utf-8')
+        return self._collection.update({'_id': key},
+                                       {'_id': key, 'value': value},
+                                       upsert=True)
 
     def __getitem__(self, key):
-        results = self._collection.find({'_id': key})
-        if results.count() == 0:
+        if isinstance(key, str):
+            key = key.decode('utf-8')
+        result = self._collection.find_one({'_id': key})
+        if not result:
             raise KeyError
-        return results[0]['value']
+        return result['value']
 
     def __delitem__(self, key):
         if key not in self:
             raise KeyError
         return self._collection.remove({'_id': key})
+
+    def clear(self):
+        self._collection.drop()
 
     def __len__(self):
         return self._collection.find().count()

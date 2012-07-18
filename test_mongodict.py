@@ -96,5 +96,28 @@ class TestMongoDict(unittest.TestCase):
         self.assertIn('testing', my_dict)
         self.assertNotIn('python', my_dict)
 
-    #TODO: test unicode
+    def test_clear(self):
+        for counter in range(10):
+            self.collection.insert({'_id': 'test-' + str(counter),
+                                    'value': counter})
+        my_dict = MongoDict()
+        my_dict.clear() # should use collections' drop method
+        #TODO: test `clear`'s call duration
+        self.assertEquals(self.collection.find().count(), 0)
+
+    def test_duplication(self):
+        my_dict = MongoDict()
+        my_dict['python'] = 'rules'
+        my_dict['python'] = 42
+
+    def test_non_unicode_strings(self):
+        my_dict = MongoDict()
+        string_1 = u'Álvaro Justen'.encode('iso-8859-15')
+        with self.assertRaises(UnicodeError):
+            my_dict[string_1] = 123
+        with self.assertRaises(UnicodeError):
+            temp = my_dict[string_1]
+        with self.assertRaises(UnicodeError):
+            my_dict['python'] = string_1
+
     #TODO: test other (pickable) objects
