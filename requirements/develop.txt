@@ -1,0 +1,4 @@
+nose
+nose-f7u12
+yanc
+docutils
