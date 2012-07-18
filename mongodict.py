@@ -24,8 +24,7 @@ class MongoDict(MutableMapping):
         return results[0]['value']
 
     def __delitem__(self, key):
-        results = self._collection.find({'_id': key})
-        if results.count() == 0:
+        if key not in self:
             raise KeyError
         return self._collection.remove({'_id': key})
 
