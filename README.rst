@@ -61,6 +61,24 @@ Enjoy! :-)
    memory).
 
 
+Why not Redis?
+--------------
+
+`Redis <http://redis.io/>`_ is "remote directory server" - it's a great piece
+of software and can do the job if all your data fit on memory. By other side,
+`MongoDB <http://mongodb.org/>`_ already have mature sharding and replica set
+features. So, if you need to store lots of key-value pairs that don't fit on
+memory, `mongodict <https://github.com/turicas/mongodict>`_ can solve your
+problem.
+
+.. NOTE::
+   `mongodict <https://github.com/turicas/mongodict>`_ does not have the same
+   API other key-value software have
+   (like `memcached <http://memcached.org/>`_). Some features are missing to
+   compete directly with these kind of software (by now we have only the
+   ``dict``-like behaviour), but I have plans to add it soon.
+
+
 Author
 ------
 
