@@ -105,10 +105,13 @@ class TestMongoDict(unittest.TestCase):
         #TODO: test `clear`'s call duration
         self.assertEquals(self.collection.find().count(), 0)
 
-    def test_duplication(self):
+    def test_should_be_possible_to_assign_new_values_to_existing_keys(self):
         my_dict = MongoDict()
         my_dict['python'] = 'rules'
         my_dict['python'] = 42
+        self.assertNotEquals(my_dict['python'], 'rules')
+        self.assertEquals(my_dict['python'], 42)
+
 
     def test_non_unicode_strings(self):
         my_dict = MongoDict()
