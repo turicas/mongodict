@@ -30,26 +30,26 @@ class TestMongoDict(unittest.TestCase):
         my_dict = MongoDict(**self.config)
         my_dict['python'] = 'rules'
         results = list(self.collection.find())
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0]['_id'], 'python')
-        self.assertEquals(results[0]['value'], 'rules')
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['_id'], 'python')
+        self.assertEqual(results[0]['value'], 'rules')
 
     def test_default_items(self):
         my_dict = MongoDict(default={'answer': 42, 'spam': 'ham'},
                             **self.config)
         results = list(self.collection.find())
-        self.assertEquals(len(results), 2)
-        self.assertEquals(results[0]['_id'], 'answer')
-        self.assertEquals(results[0]['value'], 42)
-        self.assertEquals(results[1]['_id'], 'spam')
-        self.assertEquals(results[1]['value'], 'ham')
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]['_id'], 'answer')
+        self.assertEqual(results[0]['value'], 42)
+        self.assertEqual(results[1]['_id'], 'spam')
+        self.assertEqual(results[1]['value'], 'ham')
 
     def test_get_item(self):
         self.collection.insert({'_id': 'testing', 'value': 123})
         self.collection.insert({'_id': 'bla bla bla', 'value': 3.14})
         my_dict = MongoDict(**self.config)
-        self.assertEquals(my_dict['testing'], 123)
-        self.assertEquals(my_dict['bla bla bla'], 3.14)
+        self.assertEqual(my_dict['testing'], 123)
+        self.assertEqual(my_dict['bla bla bla'], 3.14)
         with self.assertRaises(KeyError):
             temp = my_dict['non ecxiste']
 
@@ -59,7 +59,7 @@ class TestMongoDict(unittest.TestCase):
         my_dict = MongoDict(**self.config)
         del my_dict['testing']
         results = list(self.collection.find())
-        self.assertEquals(results, [{'_id': 'bla bla bla', 'value': 3.14}])
+        self.assertEqual(results, [{'_id': 'bla bla bla', 'value': 3.14}])
         with self.assertRaises(KeyError):
             del my_dict['non ecxiste']
 
@@ -68,7 +68,7 @@ class TestMongoDict(unittest.TestCase):
             self.collection.insert({'_id': 'test-' + str(counter),
                                     'value': counter})
         my_dict = MongoDict(**self.config)
-        self.assertEquals(self.collection.find().count(), len(my_dict))
+        self.assertEqual(self.collection.find().count(), len(my_dict))
 
     def test_iter(self):
         for counter in range(10):
@@ -78,17 +78,17 @@ class TestMongoDict(unittest.TestCase):
         keys = []
         for key in my_dict:
             keys.append(key)
-        self.assertEquals(len(keys), 10)
+        self.assertEqual(len(keys), 10)
         expected_keys = ['test-' + str(counter) for counter in range(10)]
-        self.assertEquals(set(keys), set(expected_keys))
-        self.assertEquals(set(my_dict.keys()), set(expected_keys))
+        self.assertEqual(set(keys), set(expected_keys))
+        self.assertEqual(set(my_dict.keys()), set(expected_keys))
         results = []
         for key, value in my_dict.iteritems():
             results.append((key, value))
         values = [x[1] for x in results]
         expected_values = list(range(10))
-        self.assertEquals(set(values), set(expected_values))
-        self.assertEquals(set(my_dict.values()), set(expected_values))
+        self.assertEqual(set(values), set(expected_values))
+        self.assertEqual(set(my_dict.values()), set(expected_values))
 
     def test_in(self):
         self.collection.insert({'_id': 'testing', 'value': 123})
@@ -103,14 +103,14 @@ class TestMongoDict(unittest.TestCase):
         my_dict = MongoDict()
         my_dict.clear() # should use collections' drop method
         #TODO: test `clear`'s call duration
-        self.assertEquals(self.collection.find().count(), 0)
+        self.assertEqual(self.collection.find().count(), 0)
 
     def test_should_be_possible_to_assign_new_values_to_existing_keys(self):
         my_dict = MongoDict()
         my_dict['python'] = 'rules'
         my_dict['python'] = 42
-        self.assertNotEquals(my_dict['python'], 'rules')
-        self.assertEquals(my_dict['python'], 42)
+        self.assertNotEqual(my_dict['python'], 'rules')
+        self.assertEqual(my_dict['python'], 42)
 
 
     def test_non_unicode_strings(self):
