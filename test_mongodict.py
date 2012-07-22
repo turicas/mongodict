@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import unittest
+import sys
 from collections import MutableMapping
 import pymongo
 from mongodict import MongoDict
@@ -115,7 +116,12 @@ class TestMongoDict(unittest.TestCase):
 
     def test_non_unicode_strings(self):
         my_dict = MongoDict()
-        string_1 = u'Álvaro Justen'.encode('iso-8859-15')
+        if sys.version < '3':
+            string_1 = unicode('Álvaro Justen'.decode('utf-8'))\
+                .encode('iso-8859-15')
+        else:
+            string_1 = 'Álvaro Justen'.encode('iso-8859-15')
+
         with self.assertRaises(UnicodeError):
             my_dict[string_1] = 123
         with self.assertRaises(UnicodeError):
