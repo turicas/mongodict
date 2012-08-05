@@ -1,4 +1,7 @@
+-r project.txt
+
 nose
 nose-f7u12
 yanc
+coverage
 docutils
