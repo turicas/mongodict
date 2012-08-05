@@ -1,11 +1,17 @@
 # coding: utf-8
 
+import sys
 from distutils.core import setup
 
 
+if sys.version_info.major == 3:
+    author_name = 'Álvaro Justen'
+else:
+    author_name = 'Álvaro Justen'.decode('utf-8')
+
 setup(name='mongodict',
       version='0.1.1',
-      author=u'Álvaro Justen',
+      author=author_name,
       author_email='alvarojusten@gmail.com',
       url='https://github.com/turicas/mongodict/',
       description='MongoDB-backed Python dict-like interface',
