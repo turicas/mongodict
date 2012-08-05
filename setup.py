@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from setuptools import setup
+from distutils.core import setup
 
 
 setup(name='mongodict',
@@ -9,13 +9,11 @@ setup(name='mongodict',
       author_email='alvarojusten@gmail.com',
       url='https://github.com/turicas/mongodict/',
       description='MongoDB-backed Python dict-like interface',
-      zip_safe=True,
       py_modules=['mongodict'],
       install_requires=['pymongo'],
-      test_suite='nose.collector',
       license='GPL3',
       keywords=['key-value', 'database', 'mongodb', 'dictionary'],
-      classifiers = [
+      classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: GNU General Public License (GPL)',
