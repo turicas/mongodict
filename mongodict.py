@@ -1,10 +1,18 @@
 # coding: utf-8
 
+import sys
 from collections import MutableMapping
 import pymongo
 
 
 __version__ = (0, 1, 1)
+
+if sys.version_info.major == 3:
+    unicode_type = str
+    byte_type = bytes
+else:
+    unicode_type = unicode
+    byte_type = str
 
 class MongoDict(MutableMapping):
     def __init__(self, host='localhost', port=27017, database='mongodict',
@@ -18,16 +26,16 @@ class MongoDict(MutableMapping):
             self.update(default)
 
     def __setitem__(self, key, value):
-        if isinstance(key, str):
+        if isinstance(key, byte_type):
             key = key.decode('utf-8')
-        if isinstance(value, str):
+        if isinstance(value, byte_type):
             value = value.decode('utf-8')
         return self._collection.update({'_id': key},
                                        {'_id': key, 'value': value},
                                        upsert=True)
 
     def __getitem__(self, key):
-        if isinstance(key, str):
+        if isinstance(key, byte_type):
             key = key.decode('utf-8')
         result = self._collection.find_one({'_id': key})
         if not result:

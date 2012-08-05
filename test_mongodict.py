@@ -84,7 +84,7 @@ class TestMongoDict(unittest.TestCase):
         self.assertEqual(set(keys), set(expected_keys))
         self.assertEqual(set(my_dict.keys()), set(expected_keys))
         results = []
-        for key, value in my_dict.iteritems():
+        for key, value in my_dict.items():
             results.append((key, value))
         values = [x[1] for x in results]
         expected_values = list(range(10))
