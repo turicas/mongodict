@@ -9,6 +9,10 @@ you!
 As it uses `MongoDB <http://mongodb.org/>`_ to store the data, you get all cool
 `MongoDB <http://mongodb.org/>`_ things, like shardings and replicas.
 
+`mongodict <https://github.com/turicas/mongodict>`_ is supported under
+`Python 2.7 <http://www.python.org/getit/releases/2.7/>`_ and
+`Python 3.2 <http://www.python.org/getit/releases/3.2/>`_.
+
 
 Installation
 ------------
@@ -16,10 +20,6 @@ Installation
 As simple as::
 
     pip install mongodict
-
-or::
-
-    easy_install mongodict
 
 
 Usage
@@ -42,7 +42,7 @@ and then use it like a normal ``dict``::
 
     >>> my_dict['python'] = 'rules'
     >>> print my_dict['python']
-    'rules'
+    rules
     >>> del my_dict['python']
     >>> print my_dict['python']
     Traceback (most recent call last):
@@ -50,6 +50,13 @@ and then use it like a normal ``dict``::
       File "mongodict.py", line 23, in __getitem__
         raise KeyError
     KeyError
+    >>> my_dict['spam'] = 'eggs'
+    >>> my_dict['ham'] = 'damn'
+    >>> for key, value in my_dict.items():
+    ...    print '{} = {}'.format(key, value)
+    ...
+    spam = eggs
+    ham = damn
 
 Enjoy! :-)
 
