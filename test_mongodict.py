@@ -103,7 +103,6 @@ class TestMongoDict(unittest.TestCase):
                                     'value': counter})
         my_dict = MongoDict()
         my_dict.clear() # should use collections' drop method
-        #TODO: test `clear`'s call duration
         self.assertEqual(self.collection.find().count(), 0)
 
     def test_should_be_possible_to_assign_new_values_to_existing_keys(self):
@@ -135,5 +134,3 @@ class TestMongoDict(unittest.TestCase):
             my_dict['testing_' + str(i)] = i
         del my_dict
         self.assertEqual(self.collection.find().count(), 1000)
-
-    #TODO: test other (pickable) objects as values

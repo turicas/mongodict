@@ -20,7 +20,7 @@ from collections import MutableMapping
 import pymongo
 
 
-__version__ = (0, 1, 1)
+__version__ = (0, 2, 0)
 __all__ = ['MongoDict']
 
 if sys.version_info.major == 3:
@@ -47,7 +47,6 @@ class MongoDict(MutableMapping):
         self._collection.ensure_index(self._index)
         if default is not None:
             self.update(default)
-        #TODO: add option to reuse a connection
 
     def __setitem__(self, key, value):
         ''' Insert/update a key (uses upsert)
