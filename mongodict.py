@@ -94,7 +94,7 @@ class MongoDict(MutableMapping):
 
     def __len__(self):
         ''' Return how many key/value pairs are stored '''
-        return self._collection.find().count()
+        return self._collection.count()
 
     def __iter__(self):
         ''' Iterate over all stored keys '''
