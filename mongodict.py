@@ -33,6 +33,8 @@ else:
 class MongoDict(MutableMapping):
     ''' ``dict``-like interface for storing data in MongoDB '''
 
+    _index = [('_id', 1), ('value', 1)]
+
     def __init__(self, host='localhost', port=27017, database='mongodict',
                  collection='main', default=None, safe=True):
         ''' MongoDB-backed Python ``dict``-like interface
@@ -42,7 +44,7 @@ class MongoDict(MutableMapping):
         self._connection = pymongo.Connection(host=host, port=port, safe=safe)
         self._db = self._connection[database]
         self._collection = self._db[collection]
-        self._collection.ensure_index([('_id', 1), ('value', 1)])
+        self._collection.ensure_index(self._index)
         if default is not None:
             self.update(default)
         #TODO: add option to reuse a connection
@@ -68,10 +70,11 @@ class MongoDict(MutableMapping):
         '''
         if isinstance(key, byte_type):
             key = key.decode('utf-8')
-        result = self._collection.find_one({'_id': key})
-        if not result:
+        result = self._collection.find({'_id': key}, {'value': 1, '_id': 0})\
+                                 .hint(self._index)
+        if result.count() == 0:
             raise KeyError
-        return result['value']
+        return result[0]['value']
 
     def __delitem__(self, key):
         ''' Delete the key/value for key ``key``
@@ -93,13 +96,12 @@ class MongoDict(MutableMapping):
 
     def __iter__(self):
         ''' Iterate over all stored keys '''
-        results = self._collection.find({}, {'_id': 1})
-        for result in results:
-            yield result['_id']
+        for result in iter(self._collection.distinct('_id')):
+            yield result
 
     def __contains__(self, key):
         ''' Return True/False if a key is/is not stored in the collection '''
-        results = self._collection.find({'_id': key})
+        results = self._collection.find({'_id': key}, {'_id': 1})
         return results.count() > 0
 
     def __del__(self):
