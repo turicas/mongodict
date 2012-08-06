@@ -84,6 +84,7 @@ class MongoDict(MutableMapping):
         ``key`` must be unicode or UTF-8.
         If not found, raises ``KeyError``.
         '''
+        key = _process_string(key)
         if key not in self:
             raise KeyError
         return self._collection.remove({'_id': key})
@@ -98,11 +99,11 @@ class MongoDict(MutableMapping):
 
     def __iter__(self):
         ''' Iterate over all stored keys '''
-        for result in iter(self._collection.distinct('_id')):
-            yield result
+        return iter(self._collection.distinct('_id'))
 
     def __contains__(self, key):
         ''' Return True/False if a key is/is not stored in the collection '''
+        key = _process_string(key)
         results = self._collection.find({'_id': key}, {'_id': 1})
         return results.count() > 0
 

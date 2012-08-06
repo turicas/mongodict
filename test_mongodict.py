@@ -132,6 +132,10 @@ class TestMongoDict(unittest.TestCase):
             temp = my_dict[string_1]
         with self.assertRaises(UnicodeError):
             my_dict['python'] = string_1
+        with self.assertRaises(UnicodeError):
+            string_1 in my_dict
+        with self.assertRaises(UnicodeError):
+            del my_dict[string_1]
 
     def test_deletion_of_MongoDict_object(self):
         my_dict = MongoDict(safe=False)
