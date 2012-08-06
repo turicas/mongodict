@@ -47,6 +47,7 @@ class MongoDict(MutableMapping):
         Create a new MongoDB connection '''
         super(MongoDict, self).__init__()
         self._connection = pymongo.Connection(host=host, port=port, safe=safe)
+        self._safe = safe
         self._db = self._connection[database]
         self._collection = self._db[collection]
         self._collection.ensure_index(self._index)
@@ -89,7 +90,7 @@ class MongoDict(MutableMapping):
 
     def clear(self):
         ''' Delete all key/value pairs '''
-        self._collection.drop()
+        self._collection.remove({}, safe=self._safe)
 
     def __len__(self):
         ''' Return how many key/value pairs are stored '''

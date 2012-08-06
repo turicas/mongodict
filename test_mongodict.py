@@ -102,8 +102,13 @@ class TestMongoDict(unittest.TestCase):
             self.collection.insert({'_id': 'test-' + str(counter),
                                     'value': counter})
         my_dict = MongoDict()
-        my_dict.clear() # should use collections' drop method
+        index_count_before = len(self.collection.index_information())
+        my_dict.clear()
+        index_count_after = len(self.collection.index_information())
         self.assertEqual(self.collection.find().count(), 0)
+
+        # MongoDict.clear() should not delete indexes
+        self.assertEqual(index_count_before, index_count_after)
 
     def test_should_be_possible_to_assign_new_values_to_existing_keys(self):
         my_dict = MongoDict()
