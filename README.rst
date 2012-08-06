@@ -86,18 +86,49 @@ problem.
    ``dict``-like behaviour), but I have plans to add it soon.
 
 
+Contributing
+------------
+
+- This software uses `Semantic Versioning <http://semver.org/>`_.
+- This software uses
+  `Test-Driven Development <http://en.wikipedia.org/wiki/Test-driven_development>`_.
+
+You can run the tests either with or without
+`tox <http://tox.readthedocs.org/en/latest/index.html>`_.
+
+Without tox
+~~~~~~~~~~~
+
+This is the simplest approach: you'll test only for one Python version. To do
+it, just execute::
+
+    mkvirtualenv --no-site-packages mongodict-without-tox
+    pip install -r requirements/develop.txt
+    make test
+
+
+With tox
+~~~~~~~~
+
+With `tox <http://tox.readthedocs.org/en/latest/index.html>`_ you can test for
+more than one Python version (currently for 2.7 and 3.2). You just need to
+create a virtualenv, install and run it::
+
+    mkvirtualenv --no-site-packages tox-for-mongodict
+    pip install tox
+    tox
+
+`tox <http://tox.readthedocs.org/en/latest/index.html>`_ will create one
+virtualenv for each Python version, install requirements and then run the tests
+for each of them.
+
+
 Author
 ------
 
 This software was written and is maintained by
 `Álvaro Justen (aka Turicas) <https://github.com/turicas>`_.
 Please contact me at ``alvarojusten`` *at* ``gmail`` *dot* ``com``.
-
-
-Semantic Versioning
--------------------
-
-This software uses `Semantic Versioning <http://semver.org/>`_.
 
 
 License

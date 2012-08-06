@@ -10,3 +10,4 @@ build/*
 reg_settings.py
 MANIFEST
 .directory
+.tox

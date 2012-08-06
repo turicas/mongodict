@@ -61,3 +61,5 @@ class MongoDict(MutableMapping):
     def __contains__(self, key):
         results = self._collection.find({'_id': key})
         return results.count() > 0
+
+    #TODO: __del__ should flush and close the connection
