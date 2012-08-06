@@ -1,6 +1,17 @@
 Change Log
 ==========
 
+Version 0.2.0
+-------------
+
+- Add Python 3.2 support (thanks, @jucacrispim)
+- Optimize all queries to hit only the index
+- Add docstrings to entire module
+- Add ``mongodict.__all__``
+- Add ``MongoDict.__del__``
+- Use tox to run tests
+
+
 Version 0.1.1
 -------------
 

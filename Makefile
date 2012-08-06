@@ -20,4 +20,7 @@ install:
 dev:
 	pip install -r requirements/develop.txt
 
-.PHONY:	test test-x doc clean install dev
+upload:
+	python setup.py sdist upload
+
+.PHONY:	test test-x doc clean install dev upload
