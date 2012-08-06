@@ -129,4 +129,11 @@ class TestMongoDict(unittest.TestCase):
         with self.assertRaises(UnicodeError):
             my_dict['python'] = string_1
 
-    #TODO: test other (pickable) objects
+    def test_deletion_of_MongoDict_object(self):
+        my_dict = MongoDict(safe=False)
+        for i in range(1000):
+            my_dict['testing_' + str(i)] = i
+        del my_dict
+        self.assertEqual(self.collection.find().count(), 1000)
+
+    #TODO: test other (pickable) objects as values
