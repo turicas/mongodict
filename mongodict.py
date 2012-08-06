@@ -30,6 +30,11 @@ else:
     unicode_type = unicode
     byte_type = str
 
+def _process_string(string):
+    if isinstance(string, byte_type):
+        string = string.decode('utf-8')
+    return string
+
 class MongoDict(MutableMapping):
     ''' ``dict``-like interface for storing data in MongoDB '''
 
@@ -53,10 +58,8 @@ class MongoDict(MutableMapping):
 
         ``key`` and ``value`` must be unicode or UTF-8.
         '''
-        if isinstance(key, byte_type):
-            key = key.decode('utf-8')
-        if isinstance(value, byte_type):
-            value = value.decode('utf-8')
+        key = _process_string(key)
+        value = _process_string(value)
         return self._collection.update({'_id': key},
                                        {'_id': key, 'value': value},
                                        upsert=True)
@@ -67,8 +70,7 @@ class MongoDict(MutableMapping):
         ``key`` must be unicode or UTF-8.
         If not found, raises ``KeyError``.
         '''
-        if isinstance(key, byte_type):
-            key = key.decode('utf-8')
+        key = _process_string(key)
         result = self._collection.find({'_id': key}, {'value': 1, '_id': 0})\
                                  .hint(self._index)
         if result.count() == 0:
