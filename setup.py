@@ -4,7 +4,7 @@ import sys
 from distutils.core import setup
 
 
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     author_name = 'Álvaro Justen'
 else:
     author_name = 'Álvaro Justen'.decode('utf-8')
