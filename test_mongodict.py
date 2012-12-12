@@ -83,11 +83,15 @@ class TestMongoDict(unittest.TestCase):
         expected_keys = ['test-' + str(counter) for counter in range(10)]
         self.assertEqual(set(keys), set(expected_keys))
         self.assertEqual(set(my_dict.keys()), set(expected_keys))
+        my_dict['python'] = 10
+        expected_keys.append('python')
+        self.assertEqual(set(my_dict.keys()), set(expected_keys))
+
         results = []
         for key, value in my_dict.items():
             results.append((key, value))
         values = [x[1] for x in results]
-        expected_values = list(range(10))
+        expected_values = list(range(11))
         self.assertEqual(set(values), set(expected_values))
         self.assertEqual(set(my_dict.values()), set(expected_values))
 
@@ -101,7 +105,7 @@ class TestMongoDict(unittest.TestCase):
         for counter in range(10):
             self.collection.insert({'_id': 'test-' + str(counter),
                                     'value': counter})
-        my_dict = MongoDict()
+        my_dict = MongoDict(**self.config)
         index_count_before = len(self.collection.index_information())
         my_dict.clear()
         index_count_after = len(self.collection.index_information())
@@ -111,7 +115,7 @@ class TestMongoDict(unittest.TestCase):
         self.assertEqual(index_count_before, index_count_after)
 
     def test_should_be_possible_to_assign_new_values_to_existing_keys(self):
-        my_dict = MongoDict()
+        my_dict = MongoDict(**self.config)
         my_dict['python'] = 'rules'
         my_dict['python'] = 42
         self.assertNotEqual(my_dict['python'], 'rules')
@@ -119,7 +123,7 @@ class TestMongoDict(unittest.TestCase):
 
 
     def test_non_unicode_strings(self):
-        my_dict = MongoDict()
+        my_dict = MongoDict(**self.config)
         if sys.version < '3':
             string_1 = unicode('Álvaro Justen'.decode('utf-8'))\
                 .encode('iso-8859-15')
@@ -138,8 +142,27 @@ class TestMongoDict(unittest.TestCase):
             del my_dict[string_1]
 
     def test_deletion_of_MongoDict_object(self):
-        my_dict = MongoDict(safe=False)
+        config = self.config.copy()
+        config['safe'] = False
+        my_dict = MongoDict(**config)
         for i in range(1000):
             my_dict['testing_' + str(i)] = i
         del my_dict
         self.assertEqual(self.collection.find().count(), 1000)
+
+    def test_keys_method_should_not_raises_exception_if_more_than_16MB(self):
+        my_dict = MongoDict(**self.config)
+        key_template = ('python' * 100) + '{}'
+        key_byte_count = 0
+        key_count = 0
+        keys = set()
+        while key_byte_count < 20 * 1024 * 1024: # 20MB > 16MB
+            new_key = key_template.format(key_count)
+            my_dict[new_key] = 'some value'
+            key_byte_count += len(new_key)
+            key_count += 1
+            keys.add(new_key)
+        dict_keys = my_dict.keys()
+        self.assertEquals(len(keys), len(dict_keys))
+        self.assertTrue(keys == set(dict_keys))
+        # do not use assertEqual here! The content is too big

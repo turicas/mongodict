@@ -99,7 +99,7 @@ class MongoDict(MutableMapping):
 
     def __iter__(self):
         ''' Iterate over all stored keys '''
-        return iter(self._collection.distinct('_id'))
+        return (x['_id'] for x in self._collection.find({}, {'_id': 1}))
 
     def __contains__(self, key):
         ''' Return True/False if a key is/is not stored in the collection '''
