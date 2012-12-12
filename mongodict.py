@@ -115,3 +115,11 @@ class MongoDict(MutableMapping):
         ''' Sync all operations and disconnect '''
         self._connection.fsync()
         self._connection.disconnect()
+
+    def set(self, key, value):
+        '''Attribute value `value` to key `key`.
+
+        Same as: `my_dict[key] = value`, return `True`.
+        '''
+        self[key] = value
+        return True

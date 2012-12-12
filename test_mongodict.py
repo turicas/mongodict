@@ -166,3 +166,39 @@ class TestMongoDict(unittest.TestCase):
         self.assertEquals(len(keys), len(dict_keys))
         self.assertTrue(keys == set(dict_keys))
         # do not use assertEqual here! The content is too big
+
+class TestMemcacheAPI(unittest.TestCase):
+    def setUp(self):
+        self.config = {'host': 'localhost', 'port': 27017,
+                       'database': 'mongodict', 'collection': 'main'}
+        self.connection = pymongo.Connection(host=self.config['host'],
+                port=self.config['port'], safe=True)
+        self.db = self.connection[self.config['database']]
+        self.collection = self.db[self.config['collection']]
+        self.my_dict = MongoDict(**self.config)
+
+    def tearDown(self):
+        self.connection.drop_database(self.db)
+
+    def test_set(self):
+        self.my_dict.set('spam', 'eggs')
+        self.assertEqual(self.my_dict['spam'], 'eggs')
+
+        self.my_dict.set('spam', 'ham')
+        self.assertEqual(self.my_dict['spam'], 'ham')
+
+        self.assertEqual(self.my_dict.set('some key', 'some value'), True)
+
+    def test_get(self):
+        self.my_dict['python'] = 'rules'
+        self.assertEqual(self.my_dict.get('python'), 'rules')
+
+        self.assertEqual(self.my_dict.get('key-that-does-not-exist-1'), None)
+        self.assertEqual(self.my_dict.get('key-that-does-not-exist-2', 0), 0)
+        self.assertEqual(self.my_dict.get('key-that-does-not-exist-3', -1), -1)
+
+    #TODO: delete - must return True
+    #TODO: incr - what if it's str?
+    #TODO: decr
+    #TODO: get_multi, set_multi, delete_multi
+    #TODO: more actions?
