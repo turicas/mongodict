@@ -41,14 +41,18 @@ class MongoDict(MutableMapping):
     _index = [('_id', 1), ('value', 1)]
 
     def __init__(self, host='localhost', port=27017, database='mongodict',
-                 collection='main', default=None, safe=True):
+                 collection='main', default=None, safe=True, auth=None):
         ''' MongoDB-backed Python ``dict``-like interface
 
-        Create a new MongoDB connection '''
+        Create a new MongoDB connection.
+        `auth` should be (login, password)'''
         super(MongoDict, self).__init__()
         self._connection = pymongo.Connection(host=host, port=port, safe=safe)
         self._safe = safe
         self._db = self._connection[database]
+        if auth is not None: #TODO: test auth
+            if not self._db.authenticate(*auth):
+                raise ValueError('Cannot authenticate to MongoDB server.')
         self._collection = self._db[collection]
         self._collection.ensure_index(self._index)
         if default is not None:

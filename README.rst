@@ -68,6 +68,23 @@ Enjoy! :-)
    memory).
 
 
+Authentication
+--------------
+
+If you want to use MongoDB's authentication to the database ``MongoDict`` is
+connecting to, you just need to provide an ``auth`` parameter, as in this
+example::
+
+
+    from mongodict import MongoDict
+
+
+    my_dict = MongoDict(host='localhost', port=27017, database='mydb',
+                        collection='mongodict',
+                        auth=('my username', 'my password'))
+
+
+
 Why not Redis?
 --------------
 
