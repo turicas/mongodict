@@ -47,9 +47,9 @@ and then use it like a normal ``dict``::
     >>> print my_dict['python']
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-      File "mongodict.py", line 23, in __getitem__
-        raise KeyError
-    KeyError
+      File "mongodict.py", line 82, in __getitem__
+        raise KeyError(key)
+    KeyError: u'python'
     >>> my_dict['spam'] = 'eggs'
     >>> my_dict['ham'] = 'damn'
     >>> for key, value in my_dict.items():

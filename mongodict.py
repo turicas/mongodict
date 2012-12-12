@@ -79,7 +79,7 @@ class MongoDict(MutableMapping):
         result = self._collection.find({'_id': key}, {'value': 1, '_id': 0})\
                                  .hint(self._index)
         if result.count() == 0:
-            raise KeyError
+            raise KeyError(key)
         return result[0]['value']
 
     def __delitem__(self, key):
@@ -90,7 +90,7 @@ class MongoDict(MutableMapping):
         '''
         key = _process_string(key)
         if key not in self:
-            raise KeyError
+            raise KeyError(key)
         return self._collection.remove({'_id': key})
 
     def clear(self):
