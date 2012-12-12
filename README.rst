@@ -120,7 +120,8 @@ create a virtualenv, install and run it::
 
 `tox <http://tox.readthedocs.org/en/latest/index.html>`_ will create one
 virtualenv for each Python version, install requirements and then run the tests
-for each of them.
+for each of them. Note that you need the python binaries available in your
+system (2.7 and 3.2) to run the tests.
 
 
 Author
