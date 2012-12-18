@@ -1,9 +1,13 @@
 # coding: utf-8
 
-import unittest
 import sys
+import unittest
+
 from collections import MutableMapping
+
 import pymongo
+
+from bson import Binary
 from mongodict import MongoDict
 
 
@@ -124,21 +128,19 @@ class TestMongoDict(unittest.TestCase):
 
     def test_non_unicode_strings(self):
         my_dict = MongoDict(**self.config)
-        if sys.version < '3':
-            string_1 = unicode('Álvaro Justen'.decode('utf-8'))\
-                .encode('iso-8859-15')
-        else:
-            string_1 = 'Álvaro Justen'.encode('iso-8859-15')
+        if sys.version >= '3':
+            return # pymongo on Python 3 does not have this problem
 
-        with self.assertRaises(UnicodeError):
+        string_1 = 'Álvaro Justen'.decode('utf8').encode('iso-8859-15')
+        with self.assertRaises(pymongo.errors.InvalidStringData):
             my_dict[string_1] = 123
-        with self.assertRaises(UnicodeError):
+        with self.assertRaises(pymongo.errors.InvalidStringData):
             temp = my_dict[string_1]
-        with self.assertRaises(UnicodeError):
+        with self.assertRaises(pymongo.errors.InvalidStringData):
             my_dict['python'] = string_1
-        with self.assertRaises(UnicodeError):
+        with self.assertRaises(pymongo.errors.InvalidStringData):
             string_1 in my_dict
-        with self.assertRaises(UnicodeError):
+        with self.assertRaises(pymongo.errors.InvalidStringData):
             del my_dict[string_1]
 
     def test_deletion_of_MongoDict_object(self):
@@ -166,3 +168,15 @@ class TestMongoDict(unittest.TestCase):
         self.assertEquals(len(keys), len(dict_keys))
         self.assertTrue(keys == set(dict_keys))
         # do not use assertEqual here! The content is too big
+
+    def test_Binary(self):
+        my_dict = MongoDict(**self.config)
+        if sys.version < '3':
+            invalid_utf8 = 'á'.decode('utf-8').encode('iso-8859-15')
+        else:
+            invalid_utf8 = 'á'.encode('iso-8859-15')
+        binary_data = Binary(invalid_utf8)
+        my_dict['test'] = binary_data
+        result = my_dict['test']
+        self.assertIn(type(result), (bytes, Binary))
+        self.assertEqual(Binary(my_dict['test']), binary_data)

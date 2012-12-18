@@ -23,18 +23,6 @@ import pymongo
 __version__ = (0, 2, 0)
 __all__ = ['MongoDict']
 
-if sys.version_info.major == 3:
-    unicode_type = str
-    byte_type = bytes
-else:
-    unicode_type = unicode
-    byte_type = str
-
-def _process_string(string):
-    if isinstance(string, byte_type):
-        string = string.decode('utf-8')
-    return string
-
 class MongoDict(MutableMapping):
     ''' ``dict``-like interface for storing data in MongoDB '''
 
@@ -63,8 +51,6 @@ class MongoDict(MutableMapping):
 
         ``key`` and ``value`` must be unicode or UTF-8.
         '''
-        key = _process_string(key)
-        value = _process_string(value)
         return self._collection.update({'_id': key},
                                        {'_id': key, 'value': value},
                                        upsert=True)
@@ -75,7 +61,6 @@ class MongoDict(MutableMapping):
         ``key`` must be unicode or UTF-8.
         If not found, raises ``KeyError``.
         '''
-        key = _process_string(key)
         result = self._collection.find({'_id': key}, {'value': 1, '_id': 0})\
                                  .hint(self._index)
         if result.count() == 0:
@@ -88,7 +73,6 @@ class MongoDict(MutableMapping):
         ``key`` must be unicode or UTF-8.
         If not found, raises ``KeyError``.
         '''
-        key = _process_string(key)
         if key not in self:
             raise KeyError(key)
         return self._collection.remove({'_id': key})
@@ -107,7 +91,6 @@ class MongoDict(MutableMapping):
 
     def __contains__(self, key):
         ''' Return True/False if a key is/is not stored in the collection '''
-        key = _process_string(key)
         results = self._collection.find({'_id': key}, {'_id': 1})
         return results.count() > 0
 
