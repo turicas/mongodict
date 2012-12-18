@@ -20,15 +20,8 @@ from collections import MutableMapping
 import pymongo
 
 
-__version__ = (0, 2, 0)
+__version__ = (0, 2, 1)
 __all__ = ['MongoDict']
-
-if sys.version_info.major == 3:
-    unicode_type = str
-    byte_type = bytes
-else:
-    unicode_type = unicode
-    byte_type = str
 
 class MongoDict(MutableMapping):
     ''' ``dict``-like interface for storing data in MongoDB '''
@@ -36,13 +29,18 @@ class MongoDict(MutableMapping):
     _index = [('_id', 1), ('value', 1)]
 
     def __init__(self, host='localhost', port=27017, database='mongodict',
-                 collection='main', default=None, safe=True):
+                 collection='main', default=None, safe=True, auth=None):
         ''' MongoDB-backed Python ``dict``-like interface
 
-        Create a new MongoDB connection '''
+        Create a new MongoDB connection.
+        `auth` should be (login, password)'''
         super(MongoDict, self).__init__()
         self._connection = pymongo.Connection(host=host, port=port, safe=safe)
+        self._safe = safe
         self._db = self._connection[database]
+        if auth is not None: #TODO: test auth
+            if not self._db.authenticate(*auth):
+                raise ValueError('Cannot authenticate to MongoDB server.')
         self._collection = self._db[collection]
         self._collection.ensure_index(self._index)
         if default is not None:
@@ -53,10 +51,6 @@ class MongoDict(MutableMapping):
 
         ``key`` and ``value`` must be unicode or UTF-8.
         '''
-        if isinstance(key, byte_type):
-            key = key.decode('utf-8')
-        if isinstance(value, byte_type):
-            value = value.decode('utf-8')
         return self._collection.update({'_id': key},
                                        {'_id': key, 'value': value},
                                        upsert=True)
@@ -67,12 +61,10 @@ class MongoDict(MutableMapping):
         ``key`` must be unicode or UTF-8.
         If not found, raises ``KeyError``.
         '''
-        if isinstance(key, byte_type):
-            key = key.decode('utf-8')
         result = self._collection.find({'_id': key}, {'value': 1, '_id': 0})\
                                  .hint(self._index)
         if result.count() == 0:
-            raise KeyError
+            raise KeyError(key)
         return result[0]['value']
 
     def __delitem__(self, key):
@@ -82,21 +74,20 @@ class MongoDict(MutableMapping):
         If not found, raises ``KeyError``.
         '''
         if key not in self:
-            raise KeyError
+            raise KeyError(key)
         return self._collection.remove({'_id': key})
 
     def clear(self):
         ''' Delete all key/value pairs '''
-        self._collection.drop()
+        self._collection.remove({}, safe=self._safe)
 
     def __len__(self):
         ''' Return how many key/value pairs are stored '''
-        return self._collection.find().count()
+        return self._collection.count()
 
     def __iter__(self):
         ''' Iterate over all stored keys '''
-        for result in iter(self._collection.distinct('_id')):
-            yield result
+        return (x['_id'] for x in self._collection.find({}, {'_id': 1}))
 
     def __contains__(self, key):
         ''' Return True/False if a key is/is not stored in the collection '''

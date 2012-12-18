@@ -47,9 +47,9 @@ and then use it like a normal ``dict``::
     >>> print my_dict['python']
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-      File "mongodict.py", line 23, in __getitem__
-        raise KeyError
-    KeyError
+      File "mongodict.py", line 82, in __getitem__
+        raise KeyError(key)
+    KeyError: u'python'
     >>> my_dict['spam'] = 'eggs'
     >>> my_dict['ham'] = 'damn'
     >>> for key, value in my_dict.items():
@@ -66,6 +66,23 @@ Enjoy! :-)
    `MongoDB <http://mongodb.org/>`_'s server put everything it can in memory,
    probably it'll not be a problem (if your working set is always entire in
    memory).
+
+
+Authentication
+--------------
+
+If you want to use MongoDB's authentication to the database ``MongoDict`` is
+connecting to, you just need to provide an ``auth`` parameter, as in this
+example::
+
+
+    from mongodict import MongoDict
+
+
+    my_dict = MongoDict(host='localhost', port=27017, database='mydb',
+                        collection='mongodict',
+                        auth=('my username', 'my password'))
+
 
 
 Why not Redis?
@@ -120,7 +137,8 @@ create a virtualenv, install and run it::
 
 `tox <http://tox.readthedocs.org/en/latest/index.html>`_ will create one
 virtualenv for each Python version, install requirements and then run the tests
-for each of them.
+for each of them. Note that you need the python binaries available in your
+system (2.7 and 3.2) to run the tests.
 
 
 Author

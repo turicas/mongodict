@@ -1,6 +1,22 @@
 Change Log
 ==========
 
+Version 0.2.1
+-------------
+
+### Bugs
+- Fix utf8 encoding problem when using `bson.Binary` (#11)
+- Fix 16MB-limit problem when calling `MongoDict.keys` (#10)
+- `MongoDict.clear()` do not remove collection indexes anymore
+
+### Enhancements
+- Raise *instance* of `KeyError` instead of class
+- Add `auth` parameter to `MongoDict` (#8)
+- Add information about tox in README
+- Fixes setup.py to work with python 2.6
+- Use `collection.count()` instead of `cursor.count()`
+
+
 Version 0.2.0
 -------------
 
