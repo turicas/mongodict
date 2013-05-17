@@ -154,7 +154,7 @@ class TestMongoDict(unittest.TestCase):
 
     def test_keys_method_should_not_raises_exception_if_more_than_16MB(self):
         my_dict = MongoDict(**self.config)
-        key_template = ('python' * 100) + '{}'
+        key_template = ('python-rules' * 100000) + '{}'
         key_byte_count = 0
         key_count = 0
         keys = set()
