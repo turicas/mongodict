@@ -16,12 +16,30 @@ As it uses `MongoDB <http://mongodb.org/>`_ to store the data, you get all cool
 '''
 
 import sys
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 from collections import MutableMapping
+
 import pymongo
+
+from bson import Binary
 
 
 __version__ = (0, 2, 1)
 __all__ = ['MongoDict']
+
+if sys.version_info[0] == 2:
+    binary_type = str
+else:
+    binary_type = bytes
+
+
+def pickle_dumps(value):
+    return pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 class MongoDict(MutableMapping):
     ''' ``dict``-like interface for storing data in MongoDB '''
@@ -29,20 +47,23 @@ class MongoDict(MutableMapping):
     _index = [('_id', 1), ('value', 1)]
 
     def __init__(self, host='localhost', port=27017, database='mongodict',
-                 collection='main', default=None, safe=True, auth=None):
+                 collection='main', codec=(pickle_dumps, pickle.loads),
+                 safe=True, auth=None, default=None):
         ''' MongoDB-backed Python ``dict``-like interface
 
         Create a new MongoDB connection.
-        `auth` should be (login, password)'''
+        `auth` must be (login, password)'''
         super(MongoDict, self).__init__()
         self._connection = pymongo.Connection(host=host, port=port, safe=safe)
         self._safe = safe
         self._db = self._connection[database]
-        if auth is not None: #TODO: test auth
+        if auth is not None:  # TODO: test auth
             if not self._db.authenticate(*auth):
                 raise ValueError('Cannot authenticate to MongoDB server.')
         self._collection = self._db[collection]
         self._collection.ensure_index(self._index)
+        self.encode_value = lambda value: Binary(codec[0](value))
+        self.decode_value = lambda value: codec[1](binary_type(value))
         if default is not None:
             self.update(default)
 
@@ -51,6 +72,7 @@ class MongoDict(MutableMapping):
 
         ``key`` and ``value`` must be unicode or UTF-8.
         '''
+        value = self.encode_value(value)
         return self._collection.update({'_id': key},
                                        {'_id': key, 'value': value},
                                        upsert=True)
@@ -61,11 +83,12 @@ class MongoDict(MutableMapping):
         ``key`` must be unicode or UTF-8.
         If not found, raises ``KeyError``.
         '''
-        result = self._collection.find({'_id': key}, {'value': 1, '_id': 0})\
+        result = self._collection.find({'_id': key},
+                                       {'value': 1, '_id': 0})\
                                  .hint(self._index)
         if result.count() == 0:
             raise KeyError(key)
-        return result[0]['value']
+        return self.decode_value(result[0]['value'])
 
     def __delitem__(self, key):
         ''' Delete the key/value for key ``key``
@@ -87,12 +110,15 @@ class MongoDict(MutableMapping):
 
     def __iter__(self):
         ''' Iterate over all stored keys '''
-        return (x['_id'] for x in self._collection.find({}, {'_id': 1}))
+        return (pair['_id']
+                for pair in self._collection.find({}, {'_id': 1}))
 
     def __contains__(self, key):
         ''' Return True/False if a key is/is not stored in the collection '''
         results = self._collection.find({'_id': key}, {'_id': 1})
         return results.count() > 0
+
+    has_key = __contains__
 
     def __del__(self):
         ''' Sync all operations and disconnect '''
