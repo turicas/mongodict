@@ -1,6 +1,20 @@
 Change Log
 ==========
 
+Version 0.3.0
+-------------
+
+- Added a "codec" concept, so user can customized how value data is saved.
+  `Pickle is the default codec <https://github.com/turicas/mongodict/issues/12>`_;
+- Added a
+  `migration script <https://github.com/turicas/mongodict/blob/master/migrate_data.py>`_
+  to migrate data from mongodict <= 0.2.1;
+- `Using basic mapping (dict) interface tests from python source
+  <https://github.com/turicas/mongodict/issues/13>`_;
+- Updated `tox <https://pypi.python.org/pypi/tox>`_ config to use Python 2.7.5
+  and Python 3.3.2 to run tests.
+
+
 Version 0.2.1
 -------------
 
