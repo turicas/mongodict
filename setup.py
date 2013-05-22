@@ -10,7 +10,7 @@ else:
     author_name = 'Álvaro Justen'.decode('utf-8')
 
 setup(name='mongodict',
-      version='0.2.1',
+      version='0.3.0',
       author=author_name,
       author_email='alvarojusten@gmail.com',
       url='https://github.com/turicas/mongodict/',

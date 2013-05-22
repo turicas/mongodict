@@ -28,7 +28,7 @@ import pymongo
 from bson import Binary
 
 
-__version__ = (0, 2, 1)
+__version__ = (0, 3, 0)
 __all__ = ['MongoDict']
 
 if sys.version_info[0] == 2:
