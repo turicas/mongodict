@@ -12,9 +12,9 @@ the `pickle` module available on Python standard library to
 serialize/deserialize data and store everything as `bson.Binary` in MongoDB.
 You can also provide another codec (serializer/deserializer).
 
-`mongodict <https://github.com/turicas/mongodict>`_ is supported under
-`Python 2.7 <http://www.python.org/getit/releases/2.7/>`_ and
-`Python 3.2 <http://www.python.org/getit/releases/3.2/>`_.
+`mongodict <https://github.com/turicas/mongodict>`_ is tested under
+`Python 2.7.5 <http://www.python.org/getit/releases/2.7/>`_ and
+`Python 3.3.2 <http://www.python.org/getit/releases/3.2/>`_.
 
 
 Installation
