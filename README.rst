@@ -7,11 +7,14 @@ your memory or you want to persist it on the disk? Then `mongodict
 you!
 
 As it uses `MongoDB <http://mongodb.org/>`_ to store the data, you get all cool
-`MongoDB <http://mongodb.org/>`_ things, like shardings and replicas.
+`MongoDB <http://mongodb.org/>`_ things, like shardings and replicas. It uses
+the `pickle` module available on Python standard library to
+serialize/deserialize data and store everything as `bson.Binary` in MongoDB.
+You can also provide another codec (serializer/deserializer).
 
-`mongodict <https://github.com/turicas/mongodict>`_ is supported under
-`Python 2.7 <http://www.python.org/getit/releases/2.7/>`_ and
-`Python 3.2 <http://www.python.org/getit/releases/3.2/>`_.
+`mongodict <https://github.com/turicas/mongodict>`_ is tested under
+`Python 2.7.5 <http://www.python.org/getit/releases/2.7/>`_ and
+`Python 3.3.2 <http://www.python.org/getit/releases/3.2/>`_.
 
 
 Installation
@@ -57,6 +60,15 @@ and then use it like a normal ``dict``::
     ...
     spam = eggs
     ham = damn
+
+If you want to use another codec, you should pass serialize and deserialize
+functions to the class during the initialization. For example, to use JSON::
+
+    >>> import json
+    >>> json_dict = MongoDict(host='localhost', port=27017,
+                              database='json_dict', collection='store',
+                              codec=(json.dumps, json.loads))
+    >>> # use json_dict as usual
 
 Enjoy! :-)
 

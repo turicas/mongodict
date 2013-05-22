@@ -1,20 +1,31 @@
 Change Log
 ==========
 
+Version 0.3.0
+-------------
+
+- Added a "codec" concept, so user can customized how value data is saved.
+  `Pickle is the default codec <https://github.com/turicas/mongodict/issues/12>`_;
+- Added a
+  `migration script <https://github.com/turicas/mongodict/blob/master/migrate_data.py>`_
+  to migrate data from mongodict <= 0.2.1;
+- `Using basic mapping (dict) interface tests from python source
+  <https://github.com/turicas/mongodict/issues/13>`_;
+- Updated `tox <https://pypi.python.org/pypi/tox>`_ config to use Python 2.7.5
+  and Python 3.3.2 to run tests.
+
+
 Version 0.2.1
 -------------
 
-### Bugs
-- Fix utf8 encoding problem when using `bson.Binary` (#11)
-- Fix 16MB-limit problem when calling `MongoDict.keys` (#10)
-- `MongoDict.clear()` do not remove collection indexes anymore
-
-### Enhancements
-- Raise *instance* of `KeyError` instead of class
-- Add `auth` parameter to `MongoDict` (#8)
+- [Bug] Fix utf8 encoding problem when using ``bson.Binary`` (#11)
+- [Bug] Fix 16MB-limit problem when calling ``MongoDict.keys`` (#10)
+- [Bug] ``MongoDict.clear()`` do not remove collection indexes anymore
+- Raise *instance* of ``KeyError`` instead of class
+- Add ``auth`` parameter to ``MongoDict`` (#8)
 - Add information about tox in README
 - Fixes setup.py to work with python 2.6
-- Use `collection.count()` instead of `cursor.count()`
+- Use ``collection.count()`` instead of ``cursor.count()``
 
 
 Version 0.2.0
