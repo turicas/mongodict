@@ -30,25 +30,24 @@ from bson import Binary
 
 __version__ = (0, 3, 0)
 __all__ = ['MongoDict']
+INDEX_KEY = [('_id', 1)]
+INDEX_KEY_VALUE = [('_id', 1), ('v', 1)]
 
 if sys.version_info[0] == 2:
     binary_type = str
 else:
     binary_type = bytes
 
-
 def pickle_dumps(value):
     return pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 class MongoDict(MutableMapping):
     ''' ``dict``-like interface for storing data in MongoDB '''
 
-    _index = [('_id', 1), ('value', 1)]
 
     def __init__(self, host='localhost', port=27017, database='mongodict',
                  collection='main', codec=(pickle_dumps, pickle.loads),
-                 safe=True, auth=None, default=None):
+                 safe=True, auth=None, default=None, index_type='key'):
         ''' MongoDB-backed Python ``dict``-like interface
 
         Create a new MongoDB connection.
@@ -61,6 +60,12 @@ class MongoDict(MutableMapping):
             if not self._db.authenticate(*auth):
                 raise ValueError('Cannot authenticate to MongoDB server.')
         self._collection = self._db[collection]
+        if index_type == 'key':
+            self._index = INDEX_KEY
+        elif index_type == 'key-value':
+            self._index = INDEX_KEY_VALUE
+        else:
+            raise ValueError(u'Error: unknown `index_type`')
         self._collection.ensure_index(self._index)
         self.encode_value = lambda value: Binary(codec[0](value))
         self.decode_value = lambda value: codec[1](binary_type(value))
@@ -74,7 +79,7 @@ class MongoDict(MutableMapping):
         '''
         value = self.encode_value(value)
         return self._collection.update({'_id': key},
-                                       {'_id': key, 'value': value},
+                                       {'_id': key, 'v': value},
                                        upsert=True)
 
     def __getitem__(self, key):
@@ -84,11 +89,11 @@ class MongoDict(MutableMapping):
         If not found, raises ``KeyError``.
         '''
         result = self._collection.find({'_id': key},
-                                       {'value': 1, '_id': 0})\
+                                       {'v': 1, '_id': 0})\
                                  .hint(self._index)
         if result.count() == 0:
             raise KeyError(key)
-        return self.decode_value(result[0]['value'])
+        return self.decode_value(result[0]['v'])
 
     def __delitem__(self, key):
         ''' Delete the key/value for key ``key``
