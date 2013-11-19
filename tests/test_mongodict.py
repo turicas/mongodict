@@ -31,6 +31,10 @@ def decode(value):
     return pickle.loads(value)
 
 
+def extract_indexes(index_info):
+    return [idx['key'] for idx in index_info.values()]
+
+
 class TestMongoDict(unittest.TestCase):
     def setUp(self):
         self.config = {'host': 'localhost', 'port': 27017,
@@ -50,13 +54,13 @@ class TestMongoDict(unittest.TestCase):
         results = list(self.collection.find())
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]['_id'], 'python')
-        self.assertEqual(decode(results[0]['value']), 'rules')
+        self.assertEqual(decode(results[0]['v']), 'rules')
 
     def test_get_item_should_retrieve_data_from_collection(self):
         self.collection.insert({'_id': 'testing',
-                                'value': Binary(encode('123'))})
+                                'v': Binary(encode('123'))})
         self.collection.insert({'_id': 'bla bla bla',
-                                'value': Binary(encode('3.14'))})
+                                'v': Binary(encode('3.14'))})
         my_dict = MongoDict(**self.config)
         self.assertEqual(my_dict['testing'], '123')
         self.assertEqual(my_dict['bla bla bla'], '3.14')
@@ -65,14 +69,14 @@ class TestMongoDict(unittest.TestCase):
 
     def test_del_item_should_delete_pair_in_the_collection(self):
         self.collection.insert({'_id': 'testing',
-                                'value': Binary(encode('123'))})
+                                'v': Binary(encode('123'))})
         self.collection.insert({'_id': 'bla bla bla',
-                                'value': Binary(encode('3.14'))})
+                                'v': Binary(encode('3.14'))})
         my_dict = MongoDict(**self.config)
         del my_dict['testing']
         results = list(self.collection.find())
         self.assertEqual(results[0]['_id'], 'bla bla bla')
-        self.assertEqual(decode(results[0]['value']), '3.14')
+        self.assertEqual(decode(results[0]['v']), '3.14')
         with self.assertRaises(KeyError):
             del my_dict['non ecxiste']
 
@@ -146,7 +150,7 @@ class TestMongoDict(unittest.TestCase):
 
         for result in self.collection.find():
             key = result['_id']
-            value = json.loads(result['value'].decode('utf-8'))
+            value = json.loads(result['v'].decode('utf-8'))
             pair = (key, value)
             self.assertIn(pair, expected)
             expected.remove(pair)
@@ -155,5 +159,26 @@ class TestMongoDict(unittest.TestCase):
             #encodes tuples as arrays and decodes arrays as lists and we can't
             #have a list as a dict key since it is not hashable
         self.assertEqual(expected, [])
+
+    def test_verify_if_index_is_created(self):
+        self.config['index_type'] = 'invalid'
+        with self.assertRaises(ValueError):
+            MongoDict(**self.config)
+        del(self.config['index_type'])
+
+        self.collection.drop()
+        my_dict = MongoDict(**self.config) # default 'index_type' = 'key'
+        indexes = extract_indexes(self.collection.index_information())
+        expected_indexes = [[('_id', 1)]]
+        self.assertEqual(indexes, expected_indexes)
+
+        self.collection.drop()
+        self.config['index_type'] = 'key-value'
+        self.config['collection'] = 'index_test'
+        self.collection = self.db[self.config['collection']]
+        other_dict = MongoDict(**self.config)
+        indexes = extract_indexes(self.collection.index_information())
+        expected_indexes = [[('_id', 1)], [('_id', 1), ('v', 1)]]
+        self.assertEqual(indexes, expected_indexes)
 
     # TODO: test types of keys (str, unicode)?
