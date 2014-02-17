@@ -178,7 +178,10 @@ class TestMongoDict(unittest.TestCase):
         self.collection = self.db[self.config['collection']]
         other_dict = MongoDict(**self.config)
         indexes = extract_indexes(self.collection.index_information())
-        expected_indexes = [[('_id', 1)], [('_id', 1), ('v', 1)]]
-        self.assertEqual(indexes, expected_indexes)
+        expected_indexes = set([(('_id', 1), ), (('_id', 1), ('v', 1))])
+        new_indexes = set()
+        for index in indexes:
+            new_indexes.add(tuple(index))
+        self.assertEqual(new_indexes, expected_indexes)
 
     # TODO: test types of keys (str, unicode)?
