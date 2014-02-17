@@ -28,7 +28,7 @@ import pymongo
 from bson import Binary
 
 
-__version__ = (0, 3, 0)
+__version__ = (0, 3, 1)
 __all__ = ['MongoDict']
 INDEX_KEY = [('_id', 1)]
 INDEX_KEY_VALUE = [('_id', 1), ('v', 1)]

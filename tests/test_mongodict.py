@@ -121,15 +121,14 @@ class TestMongoDict(unittest.TestCase):
 
     def test_pickle_codec_should_return_same_objects(self):
         self.collection.drop()
-        data = {'int': 42, 'float': 3.14, key_2: [3, 4], key_1: {123: 456},
-                'string': 'python'}
-        # since key_1 and key_2 has the same information (one is unicode, other
-        # is bytes), the contents are overwritten in MongoDict (but not in
-        # Python dict, since it recognizes these objects as differents)
-        expected = data.copy()
-        del expected[key_2]
-        self.config['default'] = data
         my_dict = MongoDict(**self.config)
+        my_dict['int'] = 42
+        my_dict['float'] = 3.14
+        my_dict['string'] = 'python'
+        my_dict[key_2] = [3, 4]
+        my_dict[key_1] = {123: 456}
+        # since key_1 and key_2 has the same information (one is unicode, other
+        # is bytes), the contents are overwritten in MongoDict
         self.assertEqual(my_dict['int'], 42)
         self.assertEqual(my_dict['float'], 3.14)
         self.assertEqual(my_dict['string'], 'python')
