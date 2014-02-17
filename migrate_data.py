@@ -2,11 +2,11 @@
 # coding: utf-8
 
 '''
-This script does data migration of data from mongodict <= 0.2.1 to 0.3.0.
-This migration is needed since the new version uses another codec by default
-(pickle instead of JSON/BSON).
-
-You need mongodict 0.3.0 to run this script properly.
+This script does data migration of data from mongodict <= 0.2.1 to 0.3.0 and
+from 0.3.0 to 0.3.1.
+The first migration is needed since the new version uses another codec by
+default (pickle instead of JSON/BSON) and the later one because the key name
+changes on document (`value` to `v`).
 '''
 
 import datetime
@@ -37,7 +37,7 @@ def print_report(counter, total, start_time):
     sys.stdout.flush()
 
 
-def migrate(config_old, config_new):
+def migrate_codec(config_old, config_new):
     '''Migrate data from mongodict <= 0.2.1 to 0.3.0
     `config_old` and `config_new` should be dictionaries with the keys
     regarding to MongoDB server:
@@ -46,6 +46,8 @@ def migrate(config_old, config_new):
         - `database`
         - `collection`
     '''
+    assert mongodict.__version__ in [(0, 3, 0), (0, 3, 1)]
+
     connection = pymongo.Connection(host=config_old['host'],
                                     port=config_old['port'])
     database = connection[config_old['database']]
@@ -55,6 +57,32 @@ def migrate(config_old, config_new):
     start_time = time.time()
     for counter, pair in enumerate(collection.find(), start=1):
         key, value = pair['_id'], pair['value']
+        new_dict[key] = value
+        if counter % REPORT_INTERVAL == 0:
+            print_report(counter, total_pairs, start_time)
+    print_report(counter, total_pairs, start_time)
+    print('')
+
+def migrate_key(config_old, config_new):
+    '''Migrate data from mongodict == 0.3.0 to 0.3.1
+    `config_old` and `config_new` should be dictionaries with the keys
+    regarding to MongoDB server:
+        - `host`
+        - `port`
+        - `database`
+        - `collection`
+    '''
+    assert mongodict.__version__ == (0, 3, 1)
+
+    connection = pymongo.Connection(host=config_old['host'],
+                                    port=config_old['port'])
+    database = connection[config_old['database']]
+    collection = database[config_old['collection']]
+    new_dict = mongodict.MongoDict(**config_new) # uses `v` as default key
+    total_pairs = collection.count()
+    start_time = time.time()
+    for counter, pair in enumerate(collection.find(), start=1):
+        key, value = pair['_id'], new_dict.decode_value(pair['value'])
         new_dict[key] = value
         if counter % REPORT_INTERVAL == 0:
             print_report(counter, total_pairs, start_time)
@@ -74,9 +102,9 @@ def main():
         sys.stderr.write('You need mongodict >= 0.3.0 to run this script.\n')
         exit(1)
 
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 4:
         error_message = ('ERROR: usage: {} <old host:port/db/coll> '
-                         '<new host:port/db/coll>\n').format(sys.argv[0])
+                         '<new host:port/db/coll> <codec|key>\n').format(sys.argv[0])
         sys.stderr.write(error_message)
         exit(2)
 
@@ -86,9 +114,16 @@ def main():
     except IndexError:
         sys.stderr.write('Error parsing MongoDB server data. Please check.\n')
         exit(3)
+    migration_type = sys.argv[3]
+    if migration_type not in ('codec', 'key'):
+        sys.stderr.write('Invalid migration type: {}'.format(migration_type))
+        exit(4)
 
     print('Starting migration...')
-    migrate(old_config, new_config)
+    if migration_type == 'codec':
+        migrate_codec(old_config, new_config)
+    elif migration_type == 'key':
+        migrate_key(old_config, new_config)
 
 
 if __name__ == '__main__':
