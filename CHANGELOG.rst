@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+Version 0.3.1
+-------------
+
+- Option to specify index type: key-only or key-and-value. If you specify "key
+  and value" you can't have documents (key + value) greater than 16MB. Default
+  option moved to key-only (fixes `issue #14
+  <https://github.com/turicas/mongodict/issues/14>`_);
+- Replace ``value`` with ``v`` as the key inside Mongo document to save space.
+
+
 Version 0.3.0
 -------------
 
