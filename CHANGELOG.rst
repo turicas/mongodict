@@ -1,6 +1,19 @@
 Change Log
 ==========
 
+Version 0.3.1
+-------------
+
+This version BREAKS DATA COMPATIBILITY with 0.3.0. Please see below:
+
+- Option to specify index type: key-only or key-and-value. If you specify "key
+  and value" you can't have documents (key + value) greater than 16MB. Default
+  option moved to key-only (fixes `issue #14
+  <https://github.com/turicas/mongodict/issues/14>`_);
+- Replace ``value`` with ``v`` as the key inside Mongo document to save space.
+  Note that you will need to migrate your data! A little script is provided.
+
+
 Version 0.3.0
 -------------
 

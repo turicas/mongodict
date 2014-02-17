@@ -1,2 +1,4 @@
 include README.rst
 include LICENSE
+include CHANGELOG.rst
+include migrate_data.py
